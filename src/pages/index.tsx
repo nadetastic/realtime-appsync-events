@@ -20,7 +20,8 @@ export default function Home() {
   const [chatType, setChatType] = useState<ChatType>("new");
 
   const handleChatJoin = () => {
-    push(`/chat/${chatType === "new" ? "new_1234" : chatId}`);
+    push(`/chat/${chatType === "new" ? "new1234" : chatId}`);
+    // push("test");
   };
   return (
     <div className="flex justify-center">
@@ -30,7 +31,12 @@ export default function Home() {
           <div className="flex flex-col gap-6">
             <div className="grid gap-2">
               <Label htmlFor="Name">Name</Label>
-              <Input placeholder="Name" />
+              <Input
+                placeholder="Name"
+                onChange={(e) =>
+                  sessionStorage.setItem("chat_username", e.target.value)
+                }
+              />
             </div>
             <div className="grid gap-2">
               <RadioGroup
