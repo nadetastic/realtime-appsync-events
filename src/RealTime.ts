@@ -123,4 +123,17 @@ export class Events {
     }
     console.log("Disconnected");
   }
+
+  public async publish(event: object) {
+    try {
+      const response = await fetch(this.HTTP_DOMAIN, {
+        method: "POST",
+        headers: this.authorization,
+        body: JSON.stringify(event),
+      });
+      console.log(response);
+    } catch (e) {
+      console.log(e);
+    }
+  }
 }
