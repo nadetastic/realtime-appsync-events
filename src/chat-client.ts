@@ -89,7 +89,7 @@ export class WebSocketSingleton {
         break;
       case "data":
         console.log(data.event);
-        handler((prev) => [...prev, data.event]);
+        handler((prev) => [...prev, JSON.parse(data.event)]);
         break;
       default:
         break;

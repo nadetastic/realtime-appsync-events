@@ -10,6 +10,7 @@ export default function Test() {
     events,
   } = useRouter();
 
+  const [currentUser] = useState(sessionStorage.getItem("chat_username"));
   const [newMessage, setNewMessage] = useState<string>();
   const [chatHistory, setChatHistory] = useState([]);
 
@@ -33,10 +34,37 @@ export default function Test() {
     };
   }, []);
   return (
-    <div>
-      <h1>Test</h1>
-      {/* <p>Hi, {sessionStorage.getItem("chat_username")}</p> */}
-      <pre>{JSON.stringify(chatHistory, null, 2)}</pre>
+    <div className="container mx-auto">
+      <h1 className="text-center">
+        Chat Room #<pre>{id}</pre>
+      </h1>
+      <p className="text-right">Hi, {currentUser}</p>
+
+      {chatHistory &&
+        chatHistory.length > 0 &&
+        chatHistory.map((chatMessage, i) => {
+          return (
+            <div
+              className={`${
+                currentUser === chatMessage.user ? "text-right" : ""
+              } my-4`}
+              key={i}
+            >
+              <div
+                className={`${
+                  currentUser === chatMessage.user
+                    ? "bg-blue-400 text-white"
+                    : "bg-gray-300"
+                } p-4`}
+              >
+                {chatMessage.message}
+              </div>
+              <span className="px-4 text-sm text-gray-800">
+                {chatMessage.user}
+              </span>
+            </div>
+          );
+        })}
       <Input onChange={(e) => setNewMessage(e.target.value)} />
       <Button
         onClick={() =>
@@ -45,7 +73,7 @@ export default function Test() {
             events: [
               JSON.stringify({
                 message: newMessage,
-                user: sessionStorage.getItem("chat_username"),
+                user: currentUser,
               }),
             ],
           })
