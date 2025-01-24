@@ -1,12 +1,16 @@
-export class WebSocketSingleton {
-  private static instance: WebSocketSingleton | null = null;
+import { Dispatch, SetStateAction } from "react";
+import type { AppSyncEventType, ChatMessageType } from "./types";
+
+import config from "@/config.json";
+
+export class ChatWebSocketSingleton {
+  private static instance: ChatWebSocketSingleton | null = null;
   private socket: WebSocket | null = null;
   private readonly REALTIME_DOMAIN: string;
   private readonly authorization: { [key: string]: string };
 
   private constructor() {
-    const HOST =
-      "sdkpdqrdjra3jkj7isyqfaypmu.appsync-api.us-west-2.amazonaws.com";
+    const HOST = config.appsyncEndpoint;
     this.REALTIME_DOMAIN = `wss://${HOST.split("-api")[0]}-realtime-api${
       HOST.split("-api")[1]
     }/event/realtime`;
@@ -16,16 +20,16 @@ export class WebSocketSingleton {
     };
   }
 
-  public static getInstance(): WebSocketSingleton {
-    if (!WebSocketSingleton.instance) {
-      WebSocketSingleton.instance = new WebSocketSingleton();
+  public static getInstance(): ChatWebSocketSingleton {
+    if (!ChatWebSocketSingleton.instance) {
+      ChatWebSocketSingleton.instance = new ChatWebSocketSingleton();
     }
-    return WebSocketSingleton.instance;
+    return ChatWebSocketSingleton.instance;
   }
 
   public connect(
     channel: string,
-    handler: (data: any) => void
+    handler: Dispatch<SetStateAction<Array<ChatMessageType>>>
   ): Promise<WebSocket> {
     return new Promise((resolve, reject) => {
       if (this.socket && this.socket.readyState === WebSocket.OPEN) {
@@ -50,6 +54,7 @@ export class WebSocketSingleton {
 
       this.socket.onmessage = (e) => {
         const data = JSON.parse(e.data);
+        console.log("type", data);
         this.handleMessage(data, channel, handler);
       };
 
@@ -63,9 +68,9 @@ export class WebSocketSingleton {
   }
 
   private handleMessage(
-    data: any,
+    data: AppSyncEventType,
     channel: string,
-    handler: (data: any) => void
+    handler: Dispatch<SetStateAction<Array<ChatMessageType>>>
   ) {
     console.log("handle message");
     console.log({ data });
@@ -127,5 +132,3 @@ export class WebSocketSingleton {
     }
   }
 }
-
-// Usage example

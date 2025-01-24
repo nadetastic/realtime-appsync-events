@@ -1,10 +1,8 @@
+import { type ChatMessageType } from "@/types";
 import { useState } from "react";
 
 type Props = {
-  chatMessage: {
-    message: string;
-    user: string;
-  };
+  chatMessage: ChatMessageType;
 };
 
 export const ChatMessage = ({ chatMessage }: Props) => {

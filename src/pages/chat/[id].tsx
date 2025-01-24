@@ -1,47 +1,58 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { WebSocketSingleton } from "@/chat-client";
+import { ChatWebSocketSingleton } from "@/chat-client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChatMessage } from "@/components/ChatMessage";
+import { ChatMessageType } from "@/types";
 
 export default function Test() {
   const {
     query: { id },
     events,
+    push,
   } = useRouter();
 
-  const [currentUser] = useState(sessionStorage.getItem("chat_username"));
+  const [currentUser, setCurrentUser] = useState<string | null>();
   const [newMessage, setNewMessage] = useState<string>();
-  const [chatHistory, setChatHistory] = useState([]);
+  const [chatHistory, setChatHistory] = useState(Array<ChatMessageType>);
 
-  const webSocketManager = WebSocketSingleton.getInstance();
+  const chatManager = ChatWebSocketSingleton.getInstance();
 
   useEffect(() => {
-    events.on("routeChangeComplete", () => {
-      webSocketManager
-        .connect(`/chat/${id}`, setChatHistory)
-        .then(() => {
-          console.log("WebSocket connected");
-        })
-        .catch((error) => {
-          console.error("Connection error:", error);
-        });
-    });
+    const sessionChatUserName = sessionStorage.getItem("chat_username");
 
-    webSocketManager.publish({
-      channel: `/chat/${id}`,
-      events: [
-        JSON.stringify({
-          message: `${currentUser} joined`,
-          user: "system",
-        }),
-      ],
-    });
-    // Cleanup function
+    console.log(sessionChatUserName);
+
+    if (sessionChatUserName) {
+      setCurrentUser(sessionChatUserName);
+      events.on("routeChangeComplete", () => {
+        chatManager
+          .connect(`/chat/${id}`, setChatHistory)
+          .then(() => {
+            console.log("WebSocket connected");
+          })
+          .catch((error) => {
+            console.error("Connection error:", error);
+          });
+      });
+
+      chatManager.publish({
+        channel: `/chat/${id}`,
+        events: [
+          JSON.stringify({
+            message: `${sessionChatUserName} joined`,
+            user: "system",
+          }),
+        ],
+      });
+    } else {
+      push("/");
+    }
+
     return () => {
-      webSocketManager.disconnect();
+      chatManager.disconnect();
     };
   }, []);
   return (
@@ -64,7 +75,7 @@ export default function Test() {
               />
               <Button
                 onClick={() =>
-                  webSocketManager.publish({
+                  chatManager.publish({
                     channel: `/chat/${id}`,
                     events: [
                       JSON.stringify({
