@@ -23,18 +23,16 @@ export default function Test() {
   useEffect(() => {
     const sessionChatUserName = sessionStorage.getItem("chat_username");
 
-    console.log(sessionChatUserName);
-
     if (sessionChatUserName) {
       setCurrentUser(sessionChatUserName);
       events.on("routeChangeComplete", () => {
         chatManager
           .connect(`/chat/${id}`, setChatHistory)
           .then(() => {
-            console.log("WebSocket connected");
+            console.log("chatManager connected");
           })
-          .catch((error) => {
-            console.error("Connection error:", error);
+          .catch((err) => {
+            console.error("chatManager connection error:", err);
           });
       });
 
@@ -54,7 +52,7 @@ export default function Test() {
     return () => {
       chatManager.disconnect();
     };
-  }, []);
+  }, [id]);
   return (
     <div className="bg-gray-100 min-h-screen">
       <div className="container mx-auto pt-8">

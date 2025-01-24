@@ -47,20 +47,19 @@ export class ChatWebSocketSingleton {
         this.socket!.send(JSON.stringify({ type: "connection_init" }));
       };
 
-      this.socket.onclose = (evt) => {
-        console.log("WebSocket connection closed", evt);
+      this.socket.onclose = () => {
+        console.log("WebSocket connection closed");
         this.socket = null;
       };
 
-      this.socket.onmessage = (e) => {
-        const data = JSON.parse(e.data);
-        console.log("type", data);
+      this.socket.onmessage = (evt) => {
+        const data = JSON.parse(evt.data);
         this.handleMessage(data, channel, handler);
       };
 
-      this.socket.onerror = (error) => {
-        console.error("WebSocket error:", error);
-        reject(error);
+      this.socket.onerror = (err) => {
+        console.error("WebSocket error");
+        reject(err);
       };
 
       resolve(this.socket);
@@ -72,8 +71,6 @@ export class ChatWebSocketSingleton {
     channel: string,
     handler: Dispatch<SetStateAction<Array<ChatMessageType>>>
   ) {
-    console.log("handle message");
-    console.log({ data });
     switch (data.type) {
       case "ka":
         console.log("KeepAlive");
@@ -87,13 +84,12 @@ export class ChatWebSocketSingleton {
             authorization: this.authorization,
           })
         );
-        console.log("Subscribed to", channel);
+        console.log("Subscribe request to", channel);
         break;
       case "subscribe_success":
         console.log("Subscription successful");
         break;
       case "data":
-        console.log(data.event);
         handler((prev) => [...prev, JSON.parse(data.event)]);
         break;
       default:
@@ -119,16 +115,14 @@ export class ChatWebSocketSingleton {
 
   public async publish(event: object): Promise<void> {
     const HTTP_DOMAIN = `https://${this.authorization.host}/event`;
-    console.log(event);
     try {
-      const response = await fetch(HTTP_DOMAIN, {
+      await fetch(HTTP_DOMAIN, {
         method: "POST",
         headers: this.authorization,
         body: JSON.stringify(event),
       });
-      console.log("Publish response:", response);
-    } catch (e) {
-      console.error("Publish error:", e);
+    } catch (err) {
+      console.error("Publish error:", err);
     }
   }
 }
