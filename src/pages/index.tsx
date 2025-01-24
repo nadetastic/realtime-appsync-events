@@ -2,8 +2,9 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardFooter,
+  CardDescription,
   CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,17 +21,36 @@ export default function Home() {
   const [chatType, setChatType] = useState<ChatType>("new");
 
   const handleChatJoin = () => {
-    push(`/chat/${chatType === "new" ? "new1234" : chatId}`);
+    push(`/chat/${chatType === "new" ? generateShortCode() : chatId}`);
     // push("test");
   };
+
+  function generateShortCode() {
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const length = Math.floor(Math.random() * 3) + 6; // 6-8 characters
+    let result = "";
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(
+        Math.floor(Math.random() * characters.length)
+      );
+    }
+    return result;
+  }
+
   return (
-    <div className="flex justify-center">
-      <Card className="">
-        <CardHeader></CardHeader>
+    <div className="flex items-start justify-center min-h-screen bg-gray-100 pt-8">
+      <Card className="w-[350px]">
+        <CardHeader>
+          <CardTitle>Start or Join a Chat</CardTitle>
+          <CardDescription>
+            Enter your screen name and generate a new chat or join an existing
+            one
+          </CardDescription>
+        </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-6">
             <div className="grid gap-2">
-              <Label htmlFor="Name">Name</Label>
+              <Label htmlFor="Name">Screen Name</Label>
               <Input
                 placeholder="Name"
                 onChange={(e) =>
@@ -66,7 +86,6 @@ export default function Home() {
             <Button onClick={handleChatJoin}>Enter Chat Room</Button>
           </div>
         </CardContent>
-        <CardFooter>{chatId}</CardFooter>
       </Card>
     </div>
   );
