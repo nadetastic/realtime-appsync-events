@@ -4,6 +4,7 @@ import { WebSocketSingleton } from "@/chat-client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChatMessage } from "@/components/ChatMessage";
 
 export default function Test() {
   const {
@@ -54,27 +55,7 @@ export default function Test() {
             {chatHistory &&
               chatHistory.length > 0 &&
               chatHistory.map((chatMessage, i) => {
-                return (
-                  <div
-                    className={`${
-                      currentUser === chatMessage.user ? "text-right" : ""
-                    } my-4`}
-                    key={i}
-                  >
-                    <div
-                      className={`${
-                        currentUser === chatMessage.user
-                          ? "bg-blue-400 text-white"
-                          : "bg-gray-300"
-                      } p-4 rounded-md`}
-                    >
-                      {chatMessage.message}
-                    </div>
-                    <span className="px-4 text-sm text-gray-800">
-                      {chatMessage.user}
-                    </span>
-                  </div>
-                );
+                return <ChatMessage chatMessage={chatMessage} key={i} />;
               })}
             <div className="flex space-x-2">
               <Input
